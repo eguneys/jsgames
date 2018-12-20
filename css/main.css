@@ -28,3 +28,8 @@ h1 {
   align-self: center;
   display: flex;
 }
+
+.information {
+  margin: 2em;
+  align-self: center;
+}
