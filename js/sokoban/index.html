@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>webpack-minimal</title>
+    <style>
+     .sg-wrap {
+         position: relative;
+         margin: auto;
+         width: 90%;
+         height: 0;
+         padding-bottom: 90%;
+     }
+     .controls {
+         margin: auto;
+     }
+    </style>
+    <link rel="stylesheet" href="./assets/piece-css/pixel.css"/>
+<script type="text/javascript" src="bundle.js"></script></head>
+<body>
+<section>
+  <div id="app" class="is2d"></div>
+
+  <div class="controls">
+    <button id="nextLevel"> Next Level </button>
+    <button id="prevLevel"> Previous Level </button>
+
+    <input id="searchTime" type="range" min="100", max="1660000" value="1000"> Search Time </input>
+  </div>
+
+  <div class="hud">
+    <p> <span> Level </span> <span id="level">?</span>
+      <span> Status </span> <span id="isend"> ? </span> 
+      <span> Legal moves </span>
+      <span id="legals">?</span>
+    </p>
+
+    <p> Fen <span id="fen">?</span></p>
+  </div>
+
+</section>
+
+<script>
+
+ var sokoban;
+ var level = 1;
+
+ var opts = {
+   events: {
+     move() {
+       renderHud(level, sokoban);
+     }
+   }
+ };
+ var kSearchTime = 200;
+
+ function initAi(sokoban) {
+
+   const initialFen = sokoban.getFen();
+   const moves = [];
+   function onBestMove(move) {
+     sokoban.move(move);
+     moves.push(move);
+     setTimeout(reset, 0);
+   }
+
+   function reset() {
+     var fen = sokoban.getFen();
+     engine.stop();
+     engine.setPosition(initialFen, moves);
+     engine.go({
+       searchDeadline: Date.now() + kSearchTime
+     });
+   }
+   
+   var engine = new Sokoban.Engine(onBestMove, {});
+
+   reset();
+ }
+
+ Sokoban(document.getElementById('app'), opts, soko => {
+   sokoban = soko;
+
+   initAi(sokoban);
+
+   renderHud(level, sokoban);
+   onClick(document.getElementById('nextLevel'), () => {
+     level++;
+     renderHud(level, sokoban);
+     sokoban.set({
+       level: level
+     });
+   });
+
+   onClick(document.getElementById('prevLevel'), () => {
+     level--;
+     renderHud(level, sokoban);
+     sokoban.set({
+       level: level
+     });
+   });
+
+   document.getElementById('searchTime').oninput = function() {
+     kSearchTime = parseInt(this.value);
+   };
+ });
+
+ function renderHud(level, sokoban) {
+   renderLevel(level);
+   renderLegals(sokoban.getLegalMoves());
+   renderFen(sokoban.getFen());
+   renderIsEnd(sokoban.isEnd()?"is end": "is playing");
+ }
+
+ function renderIsEnd(str) {
+   document.getElementById('isend').innerHTML = str;
+ }
+
+ function renderLegals(legals) {
+   document.getElementById('legals').innerHTML = legals;
+ }
+
+ function renderFen(fen) {
+   document.getElementById('fen').innerHTML = fen;
+ }
+
+ function renderLevel(level) {
+   document.getElementById('level').innerHTML = level;
+ }
+
+ function onClick(el, f) {
+   el.addEventListener('click', f);
+ }
+ 
+</script>
+
+</body>
+</html>
