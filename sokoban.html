@@ -50,24 +50,43 @@
 
     <h1>Play Sokoban with AI</h1>
 
-    <div id="app" class="is2d"></div>
+    <section>
+      <div class="app-wrap is2d">
+        <div id="app"></div>
+      </div>
 
-    <div class="controls">
-      <button id="nextLevel"> Next Level </button>
-      <button id="prevLevel"> Previous Level </button>
+      <div class="controls-wrap">
+        <div class="hud">
+          <p> <span> Level </span> <span id="level">?</span>
+            <span> Status </span> <span id="isend"> ? </span> 
+            <span> Legal moves </span>
+            <span id="legals">?</span>
+          </p>
+          <p>
+            <span> Self Play Progress </span><span id="selfProgress">?</span>
+          </p>
+        </div>
 
-      <input id="searchTime" type="range" min="100", max="1660000" value="1000"> Search Time </input>
-    </div>
+        <div class="controls">
+          <div class="ai">
+            <button id="aiplay"> Start AI Play </button>
+            <label>Search Time</label>
+            <input id="searchTime" type="range" min="100", max="10000" step="100" value="1000"></input>
+          </div>
+          <br/>
+          <div class="self">
+            <label>Level Set</label> <select id="levelSets"></select>
+            <button id="prevLevel"> Previous Level </button>
+            <button id="nextLevel"> Next Level </button>
+            <button id="selfplay"> Start Self Play </button>
+            <button id="training"> Request Training </button>
+            <button id="removemodel"> Remove model </button>
+          </div>
+        </div>
+      </div>
 
-    <div class="hud">
-      <p> <span> Level </span> <span id="level">?</span>
-        <span> Status </span> <span id="isend"> ? </span> 
-        <span> Legal moves </span>
-        <span id="legals">?</span>
-      </p>
+    </section>
 
-      <p> Fen <span id="fen">?</span></p>
-    </div>
 
     <div class="social">
       <a class="twitter-share-button"
@@ -98,97 +117,362 @@
 
 
   <script>
-   
-   var sokoban;
-   var level = 1;
 
-   var opts = {
-     events: {
-       move() {
-         renderHud(level, sokoban);
+     var level = 1;
+     var seconds = 1000
+     var minutes = 60 * seconds
+     var hour = 60 * minutes;
+
+     var kSearchTime = 30  * seconds;
+
+     function initAiPlay(sokoban, weights) {
+
+       let stopLaterTimeoutId;
+       let isRunning = false;
+
+       let initialFen,
+           moves;
+       function onBestMove(move) {
+         sokoban.move(move);
+         moves.push(move);
+         setTimeout(() => {
+           if (!stopLaterTimeoutId) {
+             engine.stop();
+             engine.setPosition(initialFen, moves);
+             engine.go({ searchDeadline: kSearchTime });
+           } else {
+             clearTimeout(stopLaterTimeoutId);
+             stopLaterTimeoutId = undefined;
+             isRunning = false;
+           }
+         }, 0);
+       }
+
+       function onEnd() {
+         renderIsEnd('is stuck');
+       }
+
+       function reset() {
+         initialFen = sokoban.getFen();
+         moves = [];
+         engine.setPosition(initialFen, moves);
+         engine.go({ searchDeadline: kSearchTime });
+       }
+
+       var engine = new Sokoban.Engine(onBestMove, onEnd, {
+         weights,
+         kBackend: 'tensorflowSimple'
+       });
+
+       return {
+         isRunning() {
+           return isRunning && !stopLaterTimeoutId;
+         },
+         startStop() {
+           console.log('is running', isRunning, stopLaterTimeoutId);
+           if (stopLaterTimeoutId) {
+
+           } else if (isRunning) {
+             stopLaterTimeoutId = setTimeout(() => {
+               isRunning = false;
+               stopLaterTimeoutId = undefined
+             }, 1000);
+             engine.stop();
+           } else {
+             isRunning = true;
+             reset();
+           }
+         }
        }
      }
-   };
-   var kSearchTime = 200;
 
-   function initAi(sokoban) {
+     function initSelfPlay(sokoban, weights) {
+       var isRunning = false;
 
-     const initialFen = sokoban.getFen();
-     const moves = [];
-     function onBestMove(move) {
-       sokoban.move(move);
-       moves.push(move);
-       setTimeout(reset, 0);
-     }
+      var requestTraining = false;
+      var lastLoop;
 
-     function reset() {
-       var fen = sokoban.getFen();
-       engine.stop();
-       engine.setPosition(initialFen, moves);
-       engine.go({
-         searchDeadline: Date.now() + kSearchTime
-       });
-     }
-     
-     var engine = new Sokoban.Engine(onBestMove, {});
+      function onProgress(progress) {
+        let res = progress.n + '/' + progress.t + ' games played';
+        if (progress.epoch) res += ' epoch ' + progress.epoch;
+        if (progress.loss) res += ' loss ' + progress.loss;
+        if (progress.acc) res += ' acc ' + progress.acc;
 
-     reset();
-   }
+        renderSelfPlay(res);
+      }
 
-   Sokoban(document.getElementById('app'), opts, soko => {
-     sokoban = soko;
+      /* var loop = new Sokoban.SelfPlayLoop({
+       *   weights,
+       *   kBackend: 'tensorflowSimple',
+       *   searchDeadline: 1000,
+       *   kTemperature: 1,
+       *   fen: sokoban.getFen()
+       * }, onProgress);
 
-     initAi(sokoban);
 
-     renderHud(level, sokoban);
-     onClick(document.getElementById('nextLevel'), () => {
-       level++;
-       renderHud(level, sokoban);
-       sokoban.set({
-         level: level
-       });
-     });
+       * var train = new Sokoban.Training({
+       *   weights,
+       *   kBackend: 'tensorflowSimple'
+       * }); */
 
-     onClick(document.getElementById('prevLevel'), () => {
-       level--;
-       renderHud(level, sokoban);
-       sokoban.set({
-         level: level
-       });
-     });
+      var loop = new Sokoban.TrainingLoop({
+        kBackend: 'tensorflowSimple',
+        searchDeadline: 30000,
+        kTemperature: 1,
+        fen: sokoban.getFen()
+      }, onProgress);
 
-     document.getElementById('searchTime').oninput = function() {
-       kSearchTime = parseInt(this.value);
-     };
-   });
+      return {
+        isRunning() {
+          return isRunning;
+        },
+        start() {
+          if (!isRunning) {
 
-   function renderHud(level, sokoban) {
-     renderLevel(level);
-     renderLegals(sokoban.getLegalMoves());
-     renderFen(sokoban.getFen());
-     renderIsEnd(sokoban.isEnd()?"is end": "is playing");
-   }
+            isRunning = true;
+            loop.run();
+          }
+        },
+        train() {
+          if (isRunning) {
+            loop.requestTrain();
+          } else {
+            loop.train(weights);
+          }
+        }
+      };
+    }
 
-   function renderIsEnd(str) {
-     document.getElementById('isend').innerHTML = str;
-   }
+    const initSokoban = (levels, weights) => {
+      var opts = {
+        levels,
+        level: 1,
+        // fen: testFen7,
+        events: {
+          move() {
+            renderHud(level, sokoban);
+          }
+        }
+      };
 
-   function renderLegals(legals) {
-     document.getElementById('legals').innerHTML = legals;
-   }
+      var sokoban = Sokoban(document.getElementById('app'), opts);
 
-   function renderFen(fen) {
-     document.getElementById('fen').innerHTML = fen;
-   }
+      const aiApi = initAiPlay(sokoban, weights);
+      const selfPlayApi = initSelfPlay(sokoban, weights);
 
-   function renderLevel(level) {
-     document.getElementById('level').innerHTML = level;
-   }
+      renderHud(level, sokoban);
 
-   function onClick(el, f) {
-     el.addEventListener('click', f);
-   }
-   
+      const unbinds = [];
+
+      unbinds.push(onClick(document.getElementById('aiplay'), () => {
+        aiApi.startStop();
+        renderAiPlay(aiApi.isRunning());
+      }));
+
+      unbinds.push(onClick(document.getElementById('nextLevel'), () => {
+        level = level === levels.length ? 1 : level + 1;
+
+        sokoban.set({
+          level: level
+        });
+        renderHud(level, sokoban);
+        if (aiApi.isRunning()) {
+          aiApi.startStop();
+          renderAiPlay(aiApi.isRunning());
+        }
+      }));
+
+      unbinds.push(onClick(document.getElementById('prevLevel'), () => {
+        level = level === 1 ? levels.length : level - 1;
+        sokoban.set({
+          level: level
+        });
+        renderHud(level, sokoban);
+        if (aiApi.isRunning()) {
+          aiApi.startStop();
+          renderAiPlay(aiApi.isRunning());
+        }
+      }));
+
+      unbinds.push(onClick(document.getElementById('selfplay'), () => {
+        selfPlayApi.start();
+      }));
+
+      unbinds.push(onClick(document.getElementById('training'), () => {
+        selfPlayApi.train();
+      }));
+
+      unbinds.push(unbindable(document.getElementById('searchTime'), 'input', function() {
+        kSearchTime = parseInt(this.value);
+        aiApi.startStop();
+        if (!aiApi.isRunning()) {
+          setTimeout(() => {
+            aiApi.startStop();
+            renderAiPlay(aiApi.isRunning());
+          }, 1000);
+        }
+        renderAiPlay(aiApi.isRunning());
+      }));
+
+      return () => {
+        if (aiApi.isRunning()) {
+          aiApi.startStop();
+        }
+        unbinds.forEach(f => f());
+      }
+    }
+
+    function renderHud(level, sokoban) {
+      renderLevel(level);
+      renderLegals(sokoban.getLegalMoves());
+      renderIsEnd(sokoban.isEnd()?"is end":
+                  sokoban.isStuck()?"is stuck":
+                  "is playing");
+    }
+
+    function renderIsEnd(str) {
+      document.getElementById('isend').innerHTML = str;
+    }
+
+    function renderLegals(legals) {
+      document.getElementById('legals').innerHTML = legals;
+    }
+
+    function renderLevel(level) {
+      document.getElementById('level').innerHTML = level;
+    }
+
+    function renderAiPlay(isRunning) {
+      let status = isRunning ? 'Stop': 'Start';
+
+      document.getElementById('aiplay').innerHTML = status + ' AI Play';
+    }
+
+    function renderSelfPlay(res) {
+      document.getElementById('selfProgress').innerHTML = res;
+    }
+
+
+    function onClick(el, f) {
+      return unbindable(el, 'click', f);
+    }
+
+    function unbindable(el, eventName, callback) {
+      el.addEventListener(eventName, callback);
+      return () => el.removeEventListener(eventName, callback);
+    }
+
+    function onChange(el, f) {
+      el.addEventListener('change', f);
+    }
+
+    function addOption(el, value) {
+      const $option = document.createElement('option');
+      $option.value = value;
+      $option.innerHTML = value;
+      el.appendChild($option);
+    }
+
+    function makeStorage(name) {
+      let val;
+      return {
+        get() {
+          return val;
+        },
+        set(value) {
+          val = value;
+        }
+      }
+    }
+
+    const customLevelsStorage = makeStorage('customlevels');
+
+    function getCustomLevels() {
+      let levels = customLevelsStorage.get();
+
+      if (!levels) {
+        customLevelsStorage.set(initialCustomLevels);
+        return getCustomLevels(level);
+      }
+
+      return levels;
+    }
+
+    function setCustomLevel(level, fen) {
+      let levels = customLevelsStorage.get();
+      levels[level] = fen;
+      customLevelsStorage.set(levels);
+    }
+
+    function getSelectedLevelSet(el, levelSets) {
+      const name = el.options[el.selectedIndex].value;
+      if (name === 'Custom') {
+        return getCustomLevels();
+      } else {
+        return levelSets[name];
+      }
+    }
+
+    const customLevel = `
+   ####################
+   ####################
+   ########## . #######
+   ########## $ #######
+   ########## @ #######
+   ####################
+   ####################
+   ####################
+   ####################
+   ####################`;
+    const initialCustomLevels = [];
+    for (var i = 0; i < 10; i++) {
+      initialCustomLevels[i] = customLevel;
+    }
+
+    const levelSets = ['Original'];
+
+    levelSets.reverse();
+
+    Promise
+      .all(levelSets.map(_ =>
+        Sokoban
+          .loadLevels('./assets/'+_+'.json')
+          .then(ls => ([_, ls]))
+      ))
+      .then(levelSets => {
+        levelSets = levelSets
+          .reduce((acc, _) => ({ [_[0]]: _[1], ...acc }), {});
+
+        const $elLevelSet = document.getElementById('levelSets');
+
+        Object
+          .keys(levelSets)
+          .forEach(_ => addOption($elLevelSet, _));
+
+        addOption($elLevelSet, 'Custom');
+
+        $elLevelSet.selectedIndex = 0;
+
+
+        Sokoban.loadWeights().then(weights => {
+          var clearSokoban = initSokoban(getSelectedLevelSet($elLevelSet, levelSets), weights);
+
+          onChange($elLevelSet, (e) => {
+            const levels = getSelectedLevelSet($elLevelSet, levelSets);
+
+            if (clearSokoban) {
+              clearSokoban();
+            }
+            clearSokoban = initSokoban(levels);
+          });
+        });
+
+      });
+
+    onClick(document.getElementById('removemodel'), () => {
+      Sokoban.clearWeights();
+      location.reload();
+    });
 
   </script>
   <!-- <script src="js/vendor/modernizr-{{MODERNIZR_VERSION}}.min.js"></script> -->
