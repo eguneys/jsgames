@@ -64,7 +64,7 @@ var Sokoban =
 /******/
 /******/ 	var hotApplyOnUpdate = true;
 /******/ 	// eslint-disable-next-line no-unused-vars
-/******/ 	var hotCurrentHash = "3d8dba1658a6d301e99c";
+/******/ 	var hotCurrentHash = "66d5e124000600ccaeb1";
 /******/ 	var hotRequestTimeout = 10000;
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentChildModule;
@@ -28648,8 +28648,7 @@ function loadWeights() {
 }
 ;
 function saveWeights(weights) {
-  weights.value.save(valueUrl);
-  weights.policy.save(policyUrl);
+  return Promise.all([weights.value.save(valueUrl), weights.policy.save(policyUrl)]);
 }
 ;
 function clearWeights() {
@@ -29112,7 +29111,9 @@ function makeTFNetwork(weights, options) {
 
 Object(_loader__WEBPACK_IMPORTED_MODULE_4__["loadWeights"])().catch(e => {
   const weights = MakeNetwork();
-  Object(_loader__WEBPACK_IMPORTED_MODULE_4__["saveWeights"])(weights);
+  Object(_loader__WEBPACK_IMPORTED_MODULE_4__["saveWeights"])(weights).then(() => {
+    location.reload();
+  });
 });
 _factory__WEBPACK_IMPORTED_MODULE_0__["default"].Get().RegisterNetwork("tensorflowSimple", makeTFNetwork);
 

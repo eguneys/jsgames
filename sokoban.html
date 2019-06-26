@@ -453,21 +453,21 @@
 
         $elLevelSet.selectedIndex = 0;
 
+        setTimeout(() => {
+          Sokoban.loadWeights().then(weights => {
+            var clearSokoban = initSokoban(getSelectedLevelSet($elLevelSet, levelSets), weights);
 
-        Sokoban.loadWeights().then(weights => {
-          var clearSokoban = initSokoban(getSelectedLevelSet($elLevelSet, levelSets), weights);
+            onChange($elLevelSet, (e) => {
+              const levels = getSelectedLevelSet($elLevelSet, levelSets);
 
-          onChange($elLevelSet, (e) => {
-            const levels = getSelectedLevelSet($elLevelSet, levelSets);
-
-            if (clearSokoban) {
-              clearSokoban();
-            }
-            clearSokoban = initSokoban(levels);
+              if (clearSokoban) {
+                clearSokoban();
+              }
+              clearSokoban = initSokoban(levels);
+            });
           });
         });
-
-      });
+      }, 0);
 
     onClick(document.getElementById('removemodel'), () => {
       Sokoban.clearWeights();
