@@ -12,10 +12,18 @@ section {
   padding: 0 0 2em 0;
 }
 
+a {
+  text-decoration: none;
+}
+
 h1 {
   font-size: 3em;
   color: white;
   text-align: center;
+}
+
+h2, h3 {
+  color: white;
 }
 
 .game_area {
@@ -32,4 +40,8 @@ h1 {
 .information {
   margin: 2em;
   align-self: center;
+}
+
+.navback {
+  margin: 10px;
 }

@@ -16,7 +16,46 @@
 
   <!-- <link rel="stylesheet" href="css/normalize.css"> -->
   <link rel="stylesheet" href="css/main.css">
-  <script src="js/supaxl/main.js"></script>
+  <style>
+   .sg-wrap {
+       position: relative;
+       margin: auto;
+       width: 60%;
+       height: 0;
+       padding-bottom: 60%;
+   }
+   .controls {
+       margin: auto;
+   }
+
+   #app {
+       text-align: center;
+   }
+
+   a {
+       text-decoration: none;
+   }
+
+   ul.stack {
+       list-style: none;
+   }
+
+   ul.stack > li {
+       font-size: 2em;
+       display: flex;
+       flex-flow: column;
+   }
+
+   ul.stack > li > img {
+       width: 400px;
+       align-self: center;
+   }
+
+   .center {
+       text-align: center;
+   }
+
+  </style>
 </head>
 
 <body>
@@ -28,22 +67,39 @@
 
 
   <section>
-    <a href="https://github.com/eguneys/supaxl"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
 
-    <a class="navback" href="games.html"> See other games </a>
+    <div class="center">
+      <h1>Play</h1>
+      <ul class="stack">
+        <li>
+          <a href="index.html"><h3> Supaplex </h3></a>
+          <a href="index.html"> <img src="img/supaplex.png" style="width: 600px; "> </a>
+        </li>
+        <li>
+          <a href="tetris.html"><h3>Tetris</h3></a>
+          <a href="tetris.html"><img src="img/tetris.png"></a>
+        </li>
+        <li>
+          <a href="sokoban.html"><h3> Sokoban with AI </h3></a>
+          <a href="sokoban.html">
+            <img src="img/sokoban.png">
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <section>
+      <div id="app"></div>
+    </section>
 
 
-    <h1>Play Supaplex</h1>
-    <div class="game_area" id="elSupaplex"></div>
     <div class="social">
       <a class="twitter-share-button"
-         href="https://twitter.com/intent/tweet?text=Play Supaplex Online!"
+         href="https://twitter.com/intent/tweet?text=Play Open Source Javascript Games!"
          data-size="large">
         Tweet</a>
     </div>
     <div class="information">
-      <a href="http://www.elmerproductions.com/sp/links.html"> More Info About Supaplex </a>
-      <a href="games.html"> See other games </a>
     </div>
   </section>
 
@@ -64,9 +120,26 @@
      return t;
    }(document, "script", "twitter-wjs"));</script>
 
+  <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
 
   <script>
-   Supaplex(document.getElementById('elSupaplex'));
+
+
+   WebFont.load({
+     google: {
+       families: ['Roboto']
+     },
+     active:e=>{
+       console.log("font loaded!");
+       init();
+     }
+   });
+
+
+   function init() {
+   }
+   
+
   </script>
   <!-- <script src="js/vendor/modernizr-{{MODERNIZR_VERSION}}.min.js"></script> -->
   <!-- <script src="https://code.jquery.com/jquery-{{JQUERY_VERSION}}.min.js" integrity="{{JQUERY_SRI_HASH}}" crossorigin="anonymous"></script> -->
