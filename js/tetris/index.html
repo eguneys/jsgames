@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>webpack-minimal</title>
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon-16x16.png"/>
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+    
+    <style>
+          html, body {
+         width: 100%;
+         height: 100%;
+         padding: 0px;
+         margin: 0px;
+
+     }
+
+     body {
+         font-family: 'Roboto', sans-serif;
+         background: black;
+     }
+
+     section {
+         width: 100%;
+         height: 100%;
+         background: #202020;
+     }
+
+     #app {
+         padding-top: 10px;
+         text-align: center;
+     }
+
+    </style>
+<script type="text/javascript" src="bundle.js"></script></head>
+<body>
+  <section>
+    <div id="app"></div>
+
+  </section>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+
+  <script>
+
+    WebFont.load({
+      google: {
+      families: ['Roboto']
+      },
+    active:e=>{
+      console.log("font loaded!");
+      init();
+    }
+    });
+
+
+    function init() {
+      const testFen1 = '10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/ggggggg1gg/1gggggg1gg/ggggggg1gg/gggg1gg1gg/ggggggg1gg i';
+
+      const testFen2 = 'gggggggggg/10/10/10/10/10/10/10/10/10/10/10/10/10/ggggggg1gg/8gg/1gggggg1gg/ggggggg1gg/gggg1gg1gg/ggggggg1gg i';
+
+   Tetris(document.getElementById('app'), {
+     fen: testFen1
+   });
+
+      Tetris.test();
+    }
+   
+  </script>
+
+</body>
+</html>
