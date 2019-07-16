@@ -59,11 +59,20 @@
 
       const testFen2 = 'gggggggggg/10/10/10/10/10/10/10/10/10/10/10/10/10/ggggggg1gg/8gg/1gggggg1gg/ggggggg1gg/gggg1gg1gg/ggggggg1gg i';
 
-   Tetris(document.getElementById('app'), {
-     fen: testFen1
-   });
+      const api = Tetris(document.getElementById('app'), {
+        fen: testFen1,
+        events: {
+          loaded: onLoaded
+        }
+      });
 
-      Tetris.test();
+      function onLoaded() {
+        ['left', 'left', 'right', 'up', 'up', 'down', 'down'].forEach((dir, i) => {
+          setTimeout(() => {
+            api.move(dir);
+          }, i * 1000);
+        });
+      }
     }
    
   </script>

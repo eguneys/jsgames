@@ -33,6 +33,7 @@
    }
   </style>
 
+  <script src="https://hammerjs.github.io/dist/hammer.min.js"></script>
   <script src="js/tetris/bundle.js"></script>
 </head>
 
@@ -99,7 +100,37 @@
 
 
    function init() {
-     Tetris(document.getElementById('app'), {});
+     const api = Tetris(document.getElementById('app'), {
+       events: {
+         loaded: onLoad
+       }
+     });
+
+     function onLoad() {
+
+       var hammertime = new Hammer(document.body, {});
+
+       hammertime.get('swipe').set({ direction: Hammer.DIRECTION_ALL });
+
+       hammertime.on('swipe', function(ev) {
+         switch (ev.direction) {
+           case 2:
+             api.move('left');
+             break;
+           case 4:
+             api.move('right');
+             break;
+           case 8:
+             api.move('up');
+             break;
+           case 16:
+             api.move('down');
+             break;
+         }
+       })
+
+
+     }
    }
    
 
