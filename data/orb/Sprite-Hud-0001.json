@@ -1,0 +1,27 @@
+{ "frames": {
+   "Sprite-0001.": {
+    "frame": { "x": 0, "y": 0, "w": 96, "h": 96 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 96, "h": 96 },
+    "sourceSize": { "w": 96, "h": 96 },
+    "duration": 100
+   }
+ },
+ "meta": {
+  "app": "http://www.aseprite.org/",
+  "version": "1.2.16.3-x64",
+  "image": "Sprite-Hud-0001.png",
+  "format": "RGBA8888",
+  "size": { "w": 96, "h": 96 },
+  "scale": "1",
+  "frameTags": [
+  ],
+  "layers": [
+   { "name": "Layer 1", "opacity": 255, "blendMode": "normal" }
+  ],
+  "slices": [
+   { "name": "White-Menu", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 0, "y": 0, "w": 96, "h": 96 }, "center": {"x": 0, "y": 0, "w": 32, "h": 32 } }] }
+  ]
+ }
+}

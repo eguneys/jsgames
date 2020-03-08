@@ -1,0 +1,30 @@
+{ "frames": {
+   "Diamonds.aseprite": {
+    "frame": { "x": 0, "y": 0, "w": 193, "h": 192 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 193, "h": 192 },
+    "sourceSize": { "w": 193, "h": 192 },
+    "duration": 100
+   }
+ },
+ "meta": {
+  "app": "http://www.aseprite.org/",
+  "version": "1.2.16.3-x64",
+  "image": "Diamonds.png",
+  "format": "RGBA8888",
+  "size": { "w": 193, "h": 192 },
+  "scale": "1",
+  "slices": [
+   { "name": "Slice", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 0, "y": 0, "w": 64, "h": 64 } }] },
+   { "name": "Slice", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 64, "y": 0, "w": 64, "h": 64 } }] },
+   { "name": "Slice", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 128, "y": 0, "w": 64, "h": 64 } }] },
+   { "name": "Slice", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 0, "y": 64, "w": 64, "h": 64 } }] },
+   { "name": "Slice", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 64, "y": 64, "w": 64, "h": 64 } }] },
+   { "name": "Slice", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 128, "y": 64, "w": 64, "h": 64 } }] },
+   { "name": "Slice", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 0, "y": 128, "w": 64, "h": 64 } }] },
+   { "name": "Slice", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 64, "y": 128, "w": 64, "h": 64 } }] },
+   { "name": "Slice", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 128, "y": 128, "w": 64, "h": 64 } }] }
+  ]
+ }
+}
