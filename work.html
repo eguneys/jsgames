@@ -21,16 +21,15 @@
    #app {
        position: relative;
        margin: auto;
-       width: 90%;
-       height: 0;
-       padding-bottom: 65.5%;
+       width: 320px;
+       height: 640px;
    }
    .controls {
        margin: auto;
    }
   </style>
 
-  <script src="js/orb/bundle.js"></script>
+  <script src="js/more/tapper/bundle.js"></script>
 </head>
 
 <body>
@@ -48,9 +47,11 @@
 
    const init = () => {
      
-     let opts = {};
+     let opts = {
+       assetsBase: "/assets/tapper/"
+     };
      
-     let orb = Orb(document.getElementById('app'), opts);
+     let orb = Tetris(document.getElementById('app'), opts);
      
    };
 
